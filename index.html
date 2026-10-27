@@ -1,0 +1,385 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passport Help Center</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f2f4f5;
+    color: #222;
+    font-family: "Noto Sans Bengali", "Segoe UI", Arial, sans-serif;
+}
+
+.wrapper {
+    width: 100%;
+    max-width: 700px;
+    margin: auto;
+}
+
+.top-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    background: #e5e5e5;
+    border-radius: 0 0 16px 16px;
+}
+
+.site-title {
+    padding: 15px 10px;
+    background: #07865f;
+    color: white;
+    text-align: center;
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.card {
+    width: calc(100% - 32px);
+    margin: 22px 16px;
+    padding: 24px 20px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 5px 20px #00000012;
+    text-align: center;
+}
+
+.product-input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #15966f;
+    border-radius: 12px;
+    font-size: 17px;
+    outline: none;
+}
+
+.product-input:focus {
+    border-color: #006f52;
+}
+
+.main-button,
+.action-button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 14px;
+    border: 0;
+    border-radius: 12px;
+    background: #1565c0;
+    color: white;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.main-button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.error {
+    display: none;
+    margin-top: 12px;
+    color: #c62828;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: #0009;
+}
+
+.overlay.show {
+    display: flex;
+}
+
+.modal {
+    width: 100%;
+    max-width: 420px;
+    padding: 22px;
+    border-radius: 18px;
+    background: white;
+    box-shadow: 0 15px 40px #0003;
+    text-align: center;
+}
+
+.modal-header {
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    background: #07865f;
+    color: white;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.modal-description {
+    margin: 12px 0;
+    color: #666;
+    line-height: 1.7;
+}
+
+.waiting {
+    display: none;
+}
+
+.waiting.show {
+    display: block;
+}
+
+.spinner {
+    width: 42px;
+    height: 42px;
+    margin: 20px auto;
+    border: 4px solid #d9eee6;
+    border-top-color: #07865f;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.footer {
+    padding: 12px 10px 25px;
+    color: #888;
+    text-align: center;
+    font-size: 13px;
+}
+
+@media (max-width: 500px) {
+    .top-image {
+        aspect-ratio: auto;
+        height: 250px;
+    }
+
+    .site-title {
+        font-size: 20px;
+    }
+
+    .card {
+        width: calc(100% - 20px);
+        margin: 15px 10px;
+        padding: 22px 16px;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+
+    <!-- নতুন হোম পেজের ছবি -->
+    <img
+        id="productImage"
+        class="top-image"
+        src="https://raw.githubusercontent.com/passportchaking-io/e_passport_help_center.gv.bd/main/1791494677132.jpg"
+        alt="ওয়েবসাইটের ছবি"
+        onerror="this.style.display='none'"
+    >
+
+    <header class="site-title">
+        Passport Help Center
+    </header>
+
+    <!-- হোম পেজ -->
+    <main id="homePage" class="card">
+        <h1 class="text-2xl font-bold mb-3">
+            তথ্য লিখুন
+        </h1>
+
+        <p class="text-gray-600 leading-7 mb-5">
+            নিচের ঘরে বাংলা, ইংরেজি, সংখ্যা অথবা আপনার প্রয়োজনীয়
+            যেকোনো লেখা লিখুন। এরপর Submit বাটনে ক্লিক করুন।
+        </p>
+
+        <form id="inputForm">
+            <label for="userText" class="sr-only">
+                আপনার লেখা
+            </label>
+
+            <textarea
+                id="userText"
+                class="product-input"
+                rows="3"
+                placeholder="এখানে আপনার লেখা লিখুন"
+                required
+            ></textarea>
+
+            <button
+                id="submitButton"
+                class="main-button"
+                type="submit"
+            >
+                Submit
+            </button>
+        </form>
+
+        <p id="errorMessage" class="error" role="alert"></p>
+    </main>
+
+    <!-- Permission পপ-আপ -->
+    <div id="permissionOverlay" class="overlay"
+         role="dialog" aria-modal="true"
+         aria-labelledby="permissionTitle">
+
+        <div class="modal">
+            <div class="modal-header">🔐 Permission</div>
+
+            <h2 id="permissionTitle" class="text-lg font-bold mb-2">
+                পেজটি ওপেন করুন
+            </h2>
+
+            <p class="modal-description">
+                Open বাটনে ক্লিক করলে পরবর্তী পেজে যাবেন।
+                আপনার লেখা বাইরের কোনো সার্ভারে পাঠানো হবে না
+                এই ডেমো সংস্করণে।
+            </p>
+
+            <button id="openButton" class="action-button">
+                Open
+            </button>
+
+            <button id="cancelButton"
+                    class="action-button"
+                    style="background:#607d8b">
+                বাতিল করুন
+            </button>
+        </div>
+    </div>
+
+    <!-- Waiting পেজ -->
+    <section id="waitingPage" class="overlay waiting"
+             role="status" aria-live="polite">
+        <div class="modal">
+            <div class="modal-header">⏳ অনুগ্রহ করে অপেক্ষা করুন</div>
+            <div class="spinner"></div>
+            <h2 class="text-lg font-bold">
+                অনুরোধ প্রক্রিয়াধীন
+            </h2>
+            <p class="modal-description">
+                এই ডেমো সংস্করণে কোনো সরকারি পাসপোর্ট যাচাই
+                বা Telegram অ্যাডমিন কমান্ড সংযুক্ত নেই।
+            </p>
+            <button id="backButton" class="action-button">
+                হোম পেজে ফিরে যান
+            </button>
+        </div>
+    </section>
+
+    <footer class="footer">
+        © Passport Help Center
+    </footer>
+</div>
+
+<script>
+"use strict";
+
+const homePage = document.getElementById("homePage");
+const inputForm = document.getElementById("inputForm");
+const userText = document.getElementById("userText");
+const submitButton = document.getElementById("submitButton");
+const errorMessage = document.getElementById("errorMessage");
+const permissionOverlay = document.getElementById("permissionOverlay");
+const openButton = document.getElementById("openButton");
+const cancelButton = document.getElementById("cancelButton");
+const waitingPage = document.getElementById("waitingPage");
+const backButton = document.getElementById("backButton");
+
+let pendingText = "";
+
+inputForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const value = userText.value.trim();
+
+    errorMessage.style.display = "none";
+
+    if (!value) {
+        errorMessage.textContent = "আগে কিছু লিখুন।";
+        errorMessage.style.display = "block";
+        userText.focus();
+        return;
+    }
+
+    pendingText = value;
+    permissionOverlay.classList.add("show");
+    openButton.focus();
+});
+
+cancelButton.addEventListener("click", function() {
+    permissionOverlay.classList.remove("show");
+    pendingText = "";
+});
+
+openButton.addEventListener("click", function() {
+    if (!pendingText) return;
+
+    permissionOverlay.classList.remove("show");
+    homePage.style.display = "none";
+    waitingPage.classList.add("show");
+
+    // এই ডেমো সংস্করণে কোনো তথ্য বাইরে পাঠানো হয় না।
+    // Chrome-এ জোর করে খোলা সব ডিভাইসে সম্ভব নয়।
+    tryOpenChrome();
+});
+
+function tryOpenChrome() {
+    const ua = navigator.userAgent || "";
+
+    if (!/Android/i.test(ua)) {
+        return;
+    }
+
+    const currentUrl = window.location.href;
+
+    if (!currentUrl.startsWith("https://")) {
+        return;
+    }
+
+    const withoutProtocol = currentUrl.replace(/^https:\/\//i, "");
+
+    const intentUrl =
+        "intent://" + withoutProtocol +
+        "#Intent;scheme=https;" +
+        "package=com.android.chrome;" +
+        "S.browser_fallback_url=" +
+        encodeURIComponent(currentUrl) +
+        ";end";
+
+    // Chrome খোলার চেষ্টা; ব্রাউজার বা OS এটি আটকাতে পারে।
+    window.location.href = intentUrl;
+}
+
+backButton.addEventListener("click", function() {
+    waitingPage.classList.remove("show");
+    homePage.style.display = "block";
+    userText.value = "";
+    pendingText = "";
+    userText.focus();
+});
+
+permissionOverlay.addEventListener("click", function(event) {
+    if (event.target === permissionOverlay) {
+        permissionOverlay.classList.remove("show");
+        pendingText = "";
+    }
+});
+</script>
+</body>
+</html>
